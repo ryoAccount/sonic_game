@@ -1,4 +1,5 @@
 import k from "./kaplayCtx";
+import mainMenu from "./scenes/mainMenu";
 
 k.loadSprite("chemical-bg", "graphics/chemical-bg.png");
 k.loadSprite("platforms", "graphics/platforms.png");
@@ -33,7 +34,7 @@ k.loadSound("jump", "sounds/Jump.wav");
 k.loadSound("ring", "sounds/Ring.wav");
 k.loadSound("city", "sounds/city.wav");
 
-k.scene("main-menu", () => {});
+k.scene("main-menu", mainMenu);
 
 k.scene("game", () => {});
 
