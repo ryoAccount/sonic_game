@@ -5,6 +5,7 @@ import k from "../kaplayCtx";
 
 export default function game() {
   k.setGravity(3100);
+  const citySfx = k.play("city", { volume: 0.1, loop: true });
 
   const bgPieceWidth = 1920;
   const bgPieces = [
@@ -15,9 +16,15 @@ export default function game() {
   const platformsWidth = 1280;
   const platforms = [k.add([k.sprite("platforms"), k.pos(0, 450), k.scale(4)]), k.add([k.sprite("platforms"), k.pos(platformsWidth * 4, 450), k.scale(4)])];
 
+  let score = 0;
+  let scoreMultiplier = 0;
+
+  const scoreText = k.add([k.text("SCORE: 0", { font: "mania", size: 64 }), k.pos(20, 20)]);
+
   const sonic = makeSonic(k.vec2(200, 745));
   sonic.setControls();
   sonic.setEvents();
+
   sonic.onCollide("enemy", (enemy) => {
     if (!sonic.isGrounded()) {
       k.play("destroy", { volume: 0.1 });
@@ -25,13 +32,30 @@ export default function game() {
       k.destroy(enemy);
       sonic.play("jump");
       sonic.jump();
-      // TODO
+      scoreMultiplier++;
+      score += 10 * scoreMultiplier;
+      scoreText.text = `SCORE: ${score}`;
+      sonic.ringCollectUI.text = `+${10 * scoreMultiplier}`;
+      k.wait(1, () => {
+        sonic.ringCollectUI.text = "";
+      });
       return;
     }
 
     k.play("hurt", { volume: 0.1 });
-    // TODO
-    k.go("gameover");
+    k.setData("current-score", score);
+    k.go("gameover", citySfx);
+  });
+
+  sonic.onCollide("ring", (ring) => {
+    k.play("ring", { volume: 0.1 });
+    k.destroy(ring);
+    score++;
+    scoreText.text = `SCORE: ${score}`;
+    sonic.ringCollectUI.text = "+1";
+    k.wait(1, () => {
+      sonic.ringCollectUI.text = "";
+    });
   });
 
   let gameSpeed = 300;
@@ -80,6 +104,8 @@ export default function game() {
   k.add([k.rect(1920, 300), k.opacity(0), k.area(), k.pos(0, 832), k.body({ isStatic: true })]);
 
   k.onUpdate(() => {
+    if (sonic.isGrounded()) scoreMultiplier = 0;
+
     if (bgPieces[1].pos.x < 0) {
       bgPieces[0].moveTo(bgPieces[1].pos.x + bgPieceWidth * 2, 0);
       bgPieces.push(bgPieces.shift());
