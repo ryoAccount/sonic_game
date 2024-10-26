@@ -80,7 +80,7 @@ export default function game() {
       }
     });
 
-    const waitTime = k.rand(0.5, 2.5);
+    const waitTime = k.rand(0.5, 1.5);
     k.wait(waitTime, spawnMotoBug);
   };
   spawnMotoBug();
@@ -96,7 +96,7 @@ export default function game() {
       }
     });
 
-    const waitTime = k.rand(0.5, 3);
+    const waitTime = k.rand(0.5, 2);
     k.wait(waitTime, spawnRing);
   };
   spawnRing();
