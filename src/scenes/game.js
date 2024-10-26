@@ -1,5 +1,6 @@
 import { makeMotobug } from "../entities/motobug";
 import { makeSonic } from "../entities/sonic";
+import { makeRing } from "../entities/ring";
 import k from "../kaplayCtx";
 
 export default function game() {
@@ -17,6 +18,21 @@ export default function game() {
   const sonic = makeSonic(k.vec2(200, 745));
   sonic.setControls();
   sonic.setEvents();
+  sonic.onCollide("enemy", (enemy) => {
+    if (!sonic.isGrounded()) {
+      k.play("destroy", { volume: 0.1 });
+      k.play("hyper-ring", { volume: 0.1 });
+      k.destroy(enemy);
+      sonic.play("jump");
+      sonic.jump();
+      // TODO
+      return;
+    }
+
+    k.play("hurt", { volume: 0.1 });
+    // TODO
+    k.go("gameover");
+  });
 
   let gameSpeed = 300;
   k.loop(1, () => {
@@ -44,6 +60,22 @@ export default function game() {
     k.wait(waitTime, spawnMotoBug);
   };
   spawnMotoBug();
+
+  const spawnRing = () => {
+    const ring = makeRing(k.vec2(1950, 745));
+    ring.onUpdate(() => {
+      ring.move(-gameSpeed, 0);
+    });
+    ring.onExitScreen(() => {
+      if (ring.pos.x < 0) {
+        k.destroy(ring);
+      }
+    });
+
+    const waitTime = k.rand(0.5, 3);
+    k.wait(waitTime, spawnRing);
+  };
+  spawnRing();
 
   k.add([k.rect(1920, 300), k.opacity(0), k.area(), k.pos(0, 832), k.body({ isStatic: true })]);
 
